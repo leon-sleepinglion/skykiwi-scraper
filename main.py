@@ -7,16 +7,15 @@ from tinydb import TinyDB, Query
 BASE_URL = 'http://bbs.skykiwi.com/'
 GENERAL_FILTER = 'forum.php?mod=forumdisplay&fid=19&orderby=dateline&filter=sortid&sortid=287' # 基于发帖时间排序,只看出租
 LOCATION_FILTER = {
-    'cbd': '&filter=typeid&typeid=33',
     'central': '&filter=typeid&typeid=38',
-    'northshore': '&filter=typeid&typeid=34'
+    'northshore': '&filter=typeid&typeid=37'
 }
 
 KEYWORD = ['dominion', '倒霉', 'eden', 'birkenhead', 'glenfield']
-DEPTH = 50
+DEPTH = 30
 
 db = TinyDB('entry.json')
-entry = Query()
+room = Query()
 
 def get_soup(link):
     r = requests.get(link)
@@ -54,7 +53,7 @@ def get_room_type(soup):
     except:
         return None
 
-def save_entry(entries):
+def save_entry(entries, location):
     repeating = False
     for entry in entries:
         body = entry.find('th', class_=['common', 'new']).find('a', recursive=False)
@@ -62,7 +61,7 @@ def save_entry(entries):
         if any([word in description.lower() for word in KEYWORD]):
             link = BASE_URL + body.get('href')
             id = re.findall(r'tid=\d+', link)[0].split('=')[1]
-            if db.get(entry.id == id) != None:
+            if db.get(room.id == id) != None:
                 repeating = True
                 break
             threadSoup = get_soup(link)
@@ -71,33 +70,29 @@ def save_entry(entries):
             room_type = get_room_type(threadSoup)
             db.insert({
                 'id': id,
-                'description' : description, 
-                'price': price, 
+                'description' : description,
+                'location': location,
+                'price': price,
                 'time': time,
-                'room_type': room_type,
+                'room_type': room_type
             })
     return repeating
 
-r = requests.get(BASE_URL + GENERAL_FILTER)
-soup = BeautifulSoup(r.text, 'html.parser')
-entries = soup.select('table#forum_19 > tbody[id^="normalthread"] > tr')
+def main():
+    print('Start scraping...')
+    for location in LOCATION_FILTER:
+        for page in range(1, DEPTH+1):
+            link = f'{BASE_URL}{GENERAL_FILTER}{LOCATION_FILTER[location]}&page={page}'
+            soup = get_soup(link)
+            try:
+                entries = soup.select('table#forum_19 > tbody[id^="normalthread"] > tr')
+                repeating = save_entry(entries, location)
+                if repeating:
+                    break
+            except:
+                print('You have reached the end for this location.')
+                break
+    print('Done scraping!!!')
 
-for entry in entries:
-    body = entry.find('th', class_=['common', 'new']).find('a', recursive=False)
-    description = body.get_text()
-    if any([word in description.lower() for word in KEYWORD]):
-        link = BASE_URL + body.get('href')
-        threadSoup = get_soup(link)
-        id = re.findall(r'tid=\d+', link)[0].split('=')[1]
-        price = get_price(threadSoup)
-        time = get_time(threadSoup)
-        room_type = get_room_type(threadSoup)
-        db.insert({
-            'id': id,
-            'description' : description, 
-            'price': price, 
-            'time': time,
-            'room_type': room_type,
-        })
-
-
+if __name__ == "__main__":
+    main()
