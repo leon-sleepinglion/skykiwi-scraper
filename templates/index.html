@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">    
+</head>
+
+<body>
+    <div id="app">
+        <section class="hero is-dark">
+            <div class="hero-body">
+                <div class="container">
+                <h1 class="title">
+                    天维网找房神器
+                </h1>
+                <h2 class="subtitle">
+                    没有最懒，只有更懒
+                </h2>
+                <p>By: sleepinglion</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <div class="container">
+                {% raw %}                
+                <b-table
+                :data="data"
+                :paginated="true"
+                :per-page="50"
+                :current-page.sync="currentPage"
+                aria-next-label="Next page"
+                aria-previous-label="Previous page"
+                aria-page-label="Page"
+                aria-current-label="Current page"
+                >
+
+                <template slot-scope="props">
+                    <b-table-column field="id" label="ID">
+                        {{ props.row.id }}
+                    </b-table-column>
+
+                    <b-table-column field="description" label="Description">
+                        <a :href=`http://bbs.skykiwi.com/forum.php?mod=viewthread&tid=${props.row.id}` target="_blank">{{ props.row.description }}</a>
+                    </b-table-column>
+
+                    <b-table-column field="location" label="Location" centered sortable>
+                        <b-tag rounded type="is-primary">{{ props.row.location }}</b-tag>
+                    </b-table-column>
+
+                    <b-table-column field="type" label="Type" centered>
+                        <b-tag rounded type="is-info">{{ props.row.room_type }}</b-tag>
+                    </b-table-column>
+
+                    <b-table-column field="time" label="Time" centered sortable>
+                        <b-tag rounded type="is-dark">{{ props.row.time }}</b-tag>
+                    </b-table-column>
+
+                    <b-table-column field="price" label="Price" sortable numeric>
+                        {{ props.row.price }}
+                    </b-table-column>
+
+                </template>
+
+                </b-table>
+                {% endraw %}
+            </div>
+        </section>
+    </div>
+
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    currentPage: 1,
+                    data: []  
+                }        
+            },
+            mounted () {
+                axios
+                .get('/room')
+                .then(response => (this.data = response.data.result))
+            }
+        })
+    </script>
+</body>
+</html>

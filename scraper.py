@@ -24,7 +24,11 @@ def get_soup(link):
 
 def get_time(soup):
     try:
-        time = soup.select_one('em[id^="authorposton"] > span').get('title')
+        time = soup.select_one('em[id^="authorposton"] > span')
+        if time == None:
+            time = soup.select_one('em[id^="authorposton"]').get_text().split('发表于 ')[1]
+        else:
+            time = time.get('title')
         return time
     except:
         return None
