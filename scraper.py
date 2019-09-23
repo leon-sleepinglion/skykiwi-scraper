@@ -14,7 +14,7 @@ LOCATION_FILTER = {
 KEYWORD = ['dominion', '倒霉', 'eden', 'birkenhead', 'glenfield']
 DEPTH = 30
 
-db = TinyDB('entry.json')
+db = TinyDB('./entry.json')
 room = Query()
 
 def get_soup(link):

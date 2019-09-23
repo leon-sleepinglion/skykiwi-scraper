@@ -3,7 +3,7 @@ from tinydb import TinyDB
 
 
 app = Flask(__name__)
-db = TinyDB('entry.json')
+db = TinyDB('./entry.json')
 
 @app.route('/')
 def home():
