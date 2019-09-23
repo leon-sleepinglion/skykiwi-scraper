@@ -11,8 +11,8 @@ LOCATION_FILTER = {
     'northshore': '&filter=typeid&typeid=37'
 }
 
-KEYWORD = ['dominion', '倒霉', 'eden', 'birkenhead', 'glenfield']
-DEPTH = 30
+KEYWORD = ['dominion', '倒霉', 'eden', 'birkenhead', 'glenfield', 'northcote', 'chatswood', 'chelsea', 'onewa', 'hillcrest']
+DEPTH = 15
 
 db = TinyDB('./entry.json')
 room = Query()

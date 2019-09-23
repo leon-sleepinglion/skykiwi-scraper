@@ -1,96 +1,100 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
-    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">    
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 </head>
 
 <body>
     <div id="app">
-        <section class="hero is-dark">
-            <div class="hero-body">
-                <div class="container">
-                <h1 class="title">
-                    天维网找房神器
-                </h1>
-                <h2 class="subtitle">
-                    没有最懒，只有更懒
-                </h2>
-                <p>By: sleepinglion</p>
-                </div>
-            </div>
-        </section>
-        
-        <section class="section">
-            <div class="container">
-                {% raw %}                
-                <b-table
-                :data="data"
-                :paginated="true"
-                :per-page="50"
-                :current-page.sync="currentPage"
-                aria-next-label="Next page"
-                aria-previous-label="Previous page"
-                aria-page-label="Page"
-                aria-current-label="Current page"
-                >
-
-                <template slot-scope="props">
-                    <b-table-column field="id" label="ID">
-                        {{ props.row.id }}
-                    </b-table-column>
-
-                    <b-table-column field="description" label="Description">
-                        <a :href=`http://bbs.skykiwi.com/forum.php?mod=viewthread&tid=${props.row.id}` target="_blank">{{ props.row.description }}</a>
-                    </b-table-column>
-
-                    <b-table-column field="location" label="Location" centered sortable>
-                        <b-tag rounded type="is-primary">{{ props.row.location }}</b-tag>
-                    </b-table-column>
-
-                    <b-table-column field="type" label="Type" centered>
-                        <b-tag rounded type="is-info">{{ props.row.room_type }}</b-tag>
-                    </b-table-column>
-
-                    <b-table-column field="time" label="Time" centered sortable>
-                        <b-tag rounded type="is-success">{{ props.row.time }}</b-tag>
-                    </b-table-column>
-
-                    <b-table-column field="price" label="Price" sortable numeric>
-                        {{ props.row.price }}
-                    </b-table-column>
-
-                </template>
-
-                </b-table>
-                {% endraw %}
-            </div>
-        </section>
+        {% raw %}
+        <v-app>
+            <v-content>
+                <!-- <v-container>Hello world</v-container> -->
+                <v-container>
+                    <v-card>
+                        <v-card-title>
+                            Rooms
+                            <div class="flex-grow-1"></div>
+                            <v-text-field v-model="search" label="Search" single-line hide-details></v-text-field>
+                        </v-card-title>
+                        <v-data-table
+                        :search="search"
+                        :headers="headers"
+                        :items="items"
+                        class="elevation-1"
+                        sort-by="time"
+                        :sort-desc="true"
+                        :multi-sort="true"
+                        :items-per-page="15"
+                        >
+                            <template v-slot:body="{ items }">
+                                <tbody>
+                                    <tr v-for="item in items" :key="item.id">
+                                        <td><a :href=`http://bbs.skykiwi.com/forum.php?mod=viewthread&tid=${item.id}` target="_blank">{{ item.description }}</a></td>
+                                        <td><v-chip small color="primary">{{ item.location }}</v-chip></td>
+                                        <td><v-chip small color="cyan" text-color="white">{{ item.room_type }}</v-chip></td>
+                                        <td><v-chip small color="deep-purple accent-4" text-color="white">{{ item.time }}</v-chip></td>
+                                        <td>{{ item.price }}</td>
+                                    </tr>
+                                </tbody>
+                            </template>
+                        </v-data-table>
+                    </v-card>
+                </v-container>
+            </v-content>
+        </v-app>
+        {% endraw %}
     </div>
 
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
-
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>    
     <script>
         new Vue({
             el: '#app',
-            data() {
-                return {
-                    currentPage: 1,
-                    data: []  
-                }        
+            vuetify: new Vuetify(),
+            data: {
+                search: "",
+                items: [],
+                headers: [
+                    {
+                        text: "Description",
+                        value: 'description',
+                        sortable: false
+                    },
+                    {
+                        text: "Location",
+                        value: 'location',
+                        align: 'center'
+                    },
+                    {
+                        text: "Type",
+                        value: 'room_type',
+                        align: 'center'
+                    },
+                    {
+                        text: "Time",
+                        value: 'time',
+                        align: 'center',
+                        sort: (a, b) => {return new Date(a) - new Date(b)}
+                    },
+                    {
+                        text: "Price",
+                        value: 'price',
+                        align: 'end'
+                    },
+                ]
             },
-            mounted () {
+            methods: {},
+            mounted() {
                 axios
-                .get('/room')
-                .then(response => (this.data = response.data.result))
+                    .get('/room')
+                    .then(response => (this.items = response.data.result))
             }
         })
     </script>
 </body>
-</html>
