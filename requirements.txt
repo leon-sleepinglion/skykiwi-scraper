@@ -1,4 +1,0 @@
-flask
-tinydb
-requests
-beautifulsoup4
